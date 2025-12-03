@@ -22,9 +22,18 @@
             <button
               @click="toggleRelayActive(relay)"
               class="btn"
+              :disabled="relay.schedules.filter((schedule) => schedule.status === 'running').length > 0"
               :class="relay.active == 1 ? 'btn-danger' : 'btn-success'"
-              v-text="relay.active == 1 ? 'OFF' : 'ON'"
-            ></button>
+            >
+              {{ relay.active == 1 ? "OFF" : "ON" }}
+              <div v-if="relay.schedules.filter((schedule) => schedule.status === 'running').length > 0">
+                <i class="bi bi-alarm"></i>
+                <Countdown
+                  :startTime="relay.schedules.filter((schedule) => schedule.status === 'running')[0].start_time"
+                  :durationMin="relay.schedules.filter((schedule) => schedule.status === 'running')[0].duration_min"
+                />
+              </div>
+            </button>
           </td>
           <td>
             <button class="btn btn-danger bi bi-trash" @click="deleteRelay(relay)"></button>
@@ -311,67 +320,3 @@ export default {
   },
 };
 </script>
-
-<style>
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-}
-
-td {
-  vertical-align: middle;
-}
-
-.day-box {
-  width: 24px;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.schedule {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.schedule-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.delete-schedule {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  padding: 0;
-}
-
-@media screen and (min-width: 600px) {
-  .start-time {
-    order: 1;
-  }
-
-  .duration {
-    order: 3;
-  }
-
-  .days {
-    order: 2;
-  }
-
-  .type {
-    order: 4;
-  }
-
-  .status {
-    order: 5;
-  }
-
-  .schedule-item {
-    width: 50%;
-  }
-}
-</style>

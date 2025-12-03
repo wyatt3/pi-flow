@@ -1,5 +1,5 @@
 {
-    "name": "pi-sprinkler-timer",
+    "name": "pi-flow",
     "version": "1.0.0",
     "description": "Multi-relay controller with scheduling, sqlite persistence, and websockets (onoff GPIO)",
     "main": "src/server.js",

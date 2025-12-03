@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./.docker/Dockerfile
     privileged: true
-    container_name: timer
+    container_name: pi-flow
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

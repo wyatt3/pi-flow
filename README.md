@@ -61,12 +61,73 @@ TIMEZONE=America/New_York
 
 * Change the value of `GPIO_ENABLED` to `true`.
 
+## Copy the pinToLineMap.example.json file
+
+I'm a little unhappy with this portion of the project, but I have yet to find an acceptable alternative package. The package that Pi Flow uses for GPIO control, `onoff`, is built to work with `libgpiod V1`. Debian Trixie uses `libgpiod V2`, so the pin numbers `onoff` needs to interact with the correct pins are not the physical pin number OR the GPIO pin number. If you're using a Raspberry Pi Zero W (and I haven't tested, but likely all other Raspberry Pis) the map in the `pinToLineMap.example.json` file should work fine for you. We can verify later. If you're using Debian Bookworm or earlier, this file can be edited to be a simple passthrough.
+
+Regardless of what OS you're using, we need to copy the example file to our production-use file.
+
+```
+cp ./src/config/pinToLineMap.example.json ./src/config/pinToLineMap.json
+```
+
+Your `pinToLineMap.json` file should now look like this:
+
+```
+{
+    "2": 514,
+    "3": 515,
+    "4": 516,
+    "5": 517,
+    "6": 518,
+    "7": 519,
+    "8": 520,
+    "9": 521,
+    "10": 522,
+    "11": 523,
+    "12": 524,
+    "13": 525,
+    "14": 526,
+    "15": 527,
+    "16": 528,
+    "17": 529,
+    "18": 530,
+    "19": 531,
+    "20": 532,
+    "21": 533,
+    "22": 534,
+    "23": 535,
+    "24": 536,
+    "25": 537,
+    "26": 538,
+    "27": 539
+}
+```
+
+The keys in the JSON object are the GPIO pin numbers, and the values are the numbers we need to pass into the `onoff` package's functions. So, if you're using Debian Bookworm or earlier, you can edit this file to look like:
+
+```
+{
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    ...
+}
+```
+
+If you're on Debian Trixie or later and want to verify the example map is correct, you can find these values in your system kernel files.
+
+```
+cat /sys/kernel/debug/gpio
+```
+
+In the future, I hope to replace the `onoff` package with a package built for `libgpiod V2`, but for now, this map allows you to use the GPIO pin number when adding a `Zone` from the web interface.
+
 ## Install NPM Dependencies
 
 If you are using a Raspberry Pi Zero W, skip to the [Raspberry Pi Zero W Specific Installation Instructions](#raspberry-pi-zero-w-specific-installation-instructions) section
 
 ```
-cd pi-flow
 npm install
 ```
 

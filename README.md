@@ -171,28 +171,30 @@ Environment=NODE_ENV=production
 WantedBy=multi-user.target
 ```
 
+Change the value of `WorkingDirectory` to the root directory of your Pi Flow installation.
+
 Reload systemd so it finds your service:
 
 ```
-systemctl daemon-reload
+sudo systemctl daemon-reload
 ```
 
 Enable the new service so it starts on every boot:
 
 ```
-systemctl enable piflow.service
+sudo systemctl enable piflow.service
 ```
 
 Finally, start the service:
 
 ```
-systemctl start piflow.service
+sudo systemctl start piflow.service
 ```
 
 You can check the status of your new service with:
 
 ```
-systemctl status piflow.service
+sudo systemctl status piflow.service
 ```
 
 You should see somewhere in the output: `enabled`, and `active (running)`. If not something went wrong with either your service configuration or your Pi Flow installation.

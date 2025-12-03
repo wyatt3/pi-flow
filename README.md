@@ -154,7 +154,7 @@ Create a `piflow.service` file:
 sudo nano /etc/systemd/system/piflow.service
 ```
 
-Put the following into the service file:
+Put the following into the service file and change the value of `WorkingDirectory` to the root directory of your Pi Flow installation:
 
 ```
 [Unit]
@@ -170,8 +170,6 @@ Environment=NODE_ENV=production
 [Install]
 WantedBy=multi-user.target
 ```
-
-Change the value of `WorkingDirectory` to the root directory of your Pi Flow installation.
 
 Reload systemd so it finds your service:
 

@@ -4,7 +4,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import http from 'http';
 import path from 'path';
-import RelayService from './services/relayService.js';
+import ZoneService from './services/zoneService.js';
 import ScheduleService from './services/scheduleService.js';
 import routes from './routes/api.js';
 import websocketService from './services/websocketService.js';
@@ -31,7 +31,7 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 process.on('SIGINT', () => {
-    RelayService.turnOffAllRelays();
+    ZoneService.turnOffAllZones();
     process.exit(0);
 });
 

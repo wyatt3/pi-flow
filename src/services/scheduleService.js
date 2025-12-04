@@ -1,17 +1,17 @@
 import db from '../config/db.js';
 import moment from 'moment-timezone';
-import Relay from '../models/relay.js';
+import Zone from '../models/zone.js';
 import Schedule from '../models/schedule.js';
 import websocketService from '../services/websocketService.js';
-import RelayService from './relayService.js';
+import ZoneService from './zoneService.js';
 
 export default class ScheduleService {
-    static createSchedule(relay, start_time, duration_min, one_time, days) {
+    static createSchedule(zone, start_time, duration_min, one_time, days) {
         const result = db.prepare(
-            `INSERT INTO schedules (relay_id, start_time, duration_min, one_time)
+            `INSERT INTO schedules (zone_id, start_time, duration_min, one_time)
             VALUES (?, ?, ?, ?)`
-        ).run(relay.id, start_time, duration_min, Number(one_time));
-        const schedule = new Schedule({ id: result.lastInsertRowid, relay_id: relay.id, start_time: start_time, duration_min: duration_min, one_time: one_time, status: 'scheduled' });
+        ).run(zone.id, start_time, duration_min, Number(one_time));
+        const schedule = new Schedule({ id: result.lastInsertRowid, zone_id: zone.id, start_time: start_time, duration_min: duration_min, one_time: one_time, status: 'scheduled' });
         ScheduleService.setDays(schedule, days);
         websocketService.broadcastUpdate();
         return schedule;
@@ -80,16 +80,16 @@ export default class ScheduleService {
         }
 
         const result = db.prepare(
-            `SELECT * FROM relays WHERE id = ?`
-        ).get(schedule.relay_id);
-        const relay = new Relay(result);
-        if (!relay) {
-            console.log(`Schedule: ${schedule.id} has an invalid relay_id, deleting`);
+            `SELECT * FROM zones WHERE id = ?`
+        ).get(schedule.zone_id);
+        const zone = new Zone(result);
+        if (!zone) {
+            console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
             ScheduleService.deleteSchedule(schedule);
             return;
         }
-        RelayService.save(relay, 0);
-        console.log(`Activated GPIO Pin: ${relay.gpio_pin}`);
+        ZoneService.save(zone, 0);
+        console.log(`Activated GPIO Pin: ${zone.gpio_pin}`);
 
         db.prepare(
             `UPDATE schedules SET status = ? WHERE id = ?`
@@ -99,8 +99,8 @@ export default class ScheduleService {
         const timeout = schedule.duration_min * 60 * 1000;
         setTimeout(() => {
             console.log(`[${moment().tz(process.env.TIMEZONE).format('YYYY-MM-DD HH:mm')}] Schedule: ${schedule.id} complete`);
-            RelayService.save(relay, 1);
-            console.log(`Deactivated GPIO Pin: ${relay.gpio_pin}`);
+            ZoneService.save(zone, 1);
+            console.log(`Deactivated GPIO Pin: ${zone.gpio_pin}`);
 
             db.prepare(
                 `UPDATE schedules SET status = ? WHERE id = ?`

@@ -1,5 +1,5 @@
 import db from '../config/db.js';
-import Relay from '../models/relay.js';
+import Zone from '../models/zone.js';
 import { Server as IOServer } from 'socket.io';
 
 class websocketService {
@@ -17,9 +17,9 @@ class websocketService {
 
     broadcastUpdate() {
         if (!this.io) return;
-        const rows = db.prepare('SELECT * FROM relays ORDER BY name').all();
-        const relays = rows.map((row) => new Relay(row));
-        this.io.emit('update', relays);
+        const rows = db.prepare('SELECT * FROM zones ORDER BY name').all();
+        const zones = rows.map((row) => new Zone(row));
+        this.io.emit('update', zones);
     }
 }
 

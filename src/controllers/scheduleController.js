@@ -1,23 +1,23 @@
 import db from '../config/db.js';
-import Relay from '../models/relay.js';
+import Zone from '../models/zone.js';
 import Schedule from '../models/schedule.js';
 import ScheduleService from '../services/scheduleService.js';
 
 export default class ScheduleController {
     static create(req, res) {
-        const { relay_id, start_time, duration_min, one_time, days } = req.body;
+        const { zone_id, start_time, duration_min, one_time, days } = req.body;
 
-        if (!relay_id || !start_time || !duration_min || one_time === null || !days) {
-            return res.status(400).json({ error: 'relay_id, start_time, duration_min, one_time, days required' });
+        if (!zone_id || !start_time || !duration_min || one_time === null || !days) {
+            return res.status(400).json({ error: 'zone_id, start_time, duration_min, one_time, days required' });
         }
-        const result = db.prepare('SELECT * FROM relays WHERE id = ?').get(relay_id);
-        const relay = new Relay(result);
-        if (!relay) {
-            return res.status(400).json({ error: 'invalid relay_id' });
+        const result = db.prepare('SELECT * FROM zones WHERE id = ?').get(zone_id);
+        const zone = new Zone(result);
+        if (!zone) {
+            return res.status(400).json({ error: 'invalid zone_id' });
         }
 
         try {
-            const schedule = ScheduleService.createSchedule(relay, start_time, duration_min, one_time, days);
+            const schedule = ScheduleService.createSchedule(zone, start_time, duration_min, one_time, days);
             return res.status(201).json(schedule);
         } catch (err) {
             return res.status(400).json(err.message);

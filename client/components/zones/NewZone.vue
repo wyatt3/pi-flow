@@ -36,7 +36,7 @@ export default {
     submit() {
       this.loading = true;
       axios
-        .post("/api/relays", {
+        .post("/api/zones", {
           name: this.name,
           gpio_pin: this.gpio_pin,
         })

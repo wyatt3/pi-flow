@@ -1,13 +1,13 @@
 import express from 'express';
-import RelayController from '../controllers/relayController.js';
+import ZoneController from '../controllers/zoneController.js';
 import ScheduleController from '../controllers/scheduleController.js';
 
 const router = express.Router();
 
-router.get('/relays/', RelayController.getAll);
-router.post('/relays/', RelayController.create);
-router.post('/relays/:id/', RelayController.update);
-router.delete('/relays/:id/', RelayController.delete);
+router.get('/zones/', ZoneController.getAll);
+router.post('/zones/', ZoneController.create);
+router.post('/zones/:id/', ZoneController.update);
+router.delete('/zones/:id/', ZoneController.delete);
 
 router.post('/schedules/', ScheduleController.create);
 router.post('/schedules/:id/', ScheduleController.update);

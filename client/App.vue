@@ -1,21 +1,21 @@
 <template>
   <div>
-    <zone-list :relays="relays" @add-zone="addingRelay = true" @select-zone="selectedRelay = $event" />
+    <zone-list :zones="zones" @add-zone="addingZone = true" @select-zone="selectedZone = $event" />
 
-    <NewZone :open="addingRelay" @close="addingRelay = false" />
+    <NewZone :open="addingZone" @close="addingZone = false" />
 
     <modal
-      :open="selectedRelay"
+      :open="selectedZone"
       @toggle="
         resetNewSchedule();
-        selectedRelay = null;
+        selectedZone = null;
       "
     >
       <h1>Schedules</h1>
-      <div v-if="!addingSchedule && selectedRelay.schedules.length == 0" class="schedule p-3 mb-3 text-center">
+      <div v-if="!addingSchedule && selectedZone.schedules.length == 0" class="schedule p-3 mb-3 text-center">
         No schedules
       </div>
-      <div class="schedule p-3 mb-3 position-relative" v-for="schedule in selectedRelay.schedules" :key="schedule.id">
+      <div class="schedule p-3 mb-3 position-relative" v-for="schedule in selectedZone.schedules" :key="schedule.id">
         <div v-if="schedule.editing"></div>
         <div v-else>
           <button class="btn btn-danger delete-schedule bi bi-x" @click="deleteSchedule(schedule)"></button>
@@ -131,12 +131,12 @@ export default {
   data() {
     return {
       loading: false,
-      relays: [],
+      zones: [],
       schedules: [],
       connected: false,
       socket: null,
-      addingRelay: false,
-      selectedRelay: null,
+      addingZone: false,
+      selectedZone: null,
       addingSchedule: false,
       newSchedule: {
         start_time: null,
@@ -152,16 +152,16 @@ export default {
     connectWs() {
       this.socket = io(`http://${window.location.hostname}:${import.meta.env.VITE_WS_PORT}`);
 
-      this.socket.on("update", (relays) => {
-        this.relays = relays;
-        if (this.selectedRelay) {
-          this.selectedRelay = this.relays.find((relay) => relay.id == this.selectedRelay.id);
+      this.socket.on("update", (zones) => {
+        this.zones = zones;
+        if (this.selectedZone) {
+          this.selectedZone = this.zones.find((zone) => zone.id == this.selectedZone.id);
         }
       });
     },
-    getRelays() {
-      axios.get("/api/relays").then((response) => {
-        this.relays = response.data;
+    getZones() {
+      axios.get("/api/zones").then((response) => {
+        this.zones = response.data;
       });
     },
 
@@ -169,7 +169,7 @@ export default {
       this.loading = true;
       axios
         .post(`/api/schedules`, {
-          relay_id: this.selectedRelay.id,
+          zone_id: this.selectedZone.id,
           ...this.newSchedule,
         })
         .then(() => {
@@ -233,7 +233,7 @@ export default {
 
   mounted() {
     this.connectWs();
-    this.getRelays();
+    this.getZones();
   },
 
   beforeUnmount() {

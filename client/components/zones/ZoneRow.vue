@@ -1,10 +1,10 @@
 <template>
   <tr>
-    <td>{{ relay.name }}</td>
-    <td>{{ relay.gpio_pin }}</td>
+    <td>{{ zone.name }}</td>
+    <td>{{ zone.gpio_pin }}</td>
 
     <td>
-      <button class="btn btn-info" @click="$emit('select-zone', relay)">
+      <button class="btn btn-info" @click="$emit('select-zone', zone)">
         <i class="bi bi-clock"></i>
       </button>
     </td>
@@ -14,9 +14,9 @@
         @click="toggleActive"
         :disabled="runningSchedules.length > 0"
         class="btn"
-        :class="relay.active == 1 ? 'btn-danger' : 'btn-success'"
+        :class="zone.active == 1 ? 'btn-danger' : 'btn-success'"
       >
-        {{ relay.active == 1 ? "OFF" : "ON" }}
+        {{ zone.active == 1 ? "OFF" : "ON" }}
 
         <div v-if="runningSchedules.length > 0">
           <i class="bi bi-alarm"></i>
@@ -38,28 +38,28 @@ export default {
     Countdown,
   },
   props: {
-    relay: {
+    zone: {
       type: Object,
       required: true,
     },
   },
   methods: {
     toggleActive() {
-      this.relay.active = this.relay.active == 1 ? 0 : 1;
-      axios.post(`/api/relays/${this.relay.id}`, this.relay).catch((err) => {
-        this.relay.active = this.relay.active == 1 ? 0 : 1;
+      this.zone.active = this.zone.active == 1 ? 0 : 1;
+      axios.post(`/api/zones/${this.zone.id}`, this.zone).catch((err) => {
+        this.zone.active = this.zone.active == 1 ? 0 : 1;
         this.$toast.error(err.response.data);
       });
     },
-    deleteRelay() {
-      axios.delete(`/api/relays/${this.relay.id}`).then(() => {
+    deleteZone() {
+      axios.delete(`/api/zones/${this.zone.id}`).then(() => {
         this.$toast.success("Zone deleted");
       });
     },
   },
   computed: {
     runningSchedules() {
-      return this.relay.schedules.filter((s) => s.status === "running");
+      return this.zone.schedules.filter((s) => s.status === "running");
     },
   },
 };

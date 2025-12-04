@@ -13,7 +13,7 @@
       </thead>
 
       <tbody>
-        <ZoneRow v-for="relay in relays" :key="relay.id" :relay="relay" @select-zone="$emit('select-zone', $event)" />
+        <ZoneRow v-for="zone in zones" :key="zone.id" :zone="zone" @select-zone="$emit('select-zone', $event)" />
       </tbody>
     </table>
 
@@ -24,7 +24,12 @@
 <script>
 import ZoneRow from "./ZoneRow.vue";
 export default {
-  props: ["relays"],
+  props: {
+    zones: {
+      type: Array,
+      required: true,
+    },
+  },
   components: { ZoneRow },
 };
 </script>

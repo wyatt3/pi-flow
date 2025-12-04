@@ -1,57 +1,8 @@
 <template>
   <div>
-    <h1 class="text-xl font-bold">Zones</h1>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>GPIO Pin</th>
-          <th>Schedule</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="relay in relays" :key="relay.id">
-          <td>{{ relay.name }}</td>
-          <td>{{ relay.gpio_pin }}</td>
-          <td>
-            <button class="btn btn-info" @click="selectedRelay = relay"><i class="bi bi-clock"></i></button>
-          </td>
-          <td>
-            <button
-              @click="toggleRelayActive(relay)"
-              class="btn"
-              :disabled="relay.schedules.filter((schedule) => schedule.status === 'running').length > 0"
-              :class="relay.active == 1 ? 'btn-danger' : 'btn-success'"
-            >
-              {{ relay.active == 1 ? "OFF" : "ON" }}
-              <div v-if="relay.schedules.filter((schedule) => schedule.status === 'running').length > 0">
-                <i class="bi bi-alarm"></i>
-                <Countdown
-                  :startTime="relay.schedules.filter((schedule) => schedule.status === 'running')[0].start_time"
-                  :durationMin="relay.schedules.filter((schedule) => schedule.status === 'running')[0].duration_min"
-                />
-              </div>
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-danger bi bi-trash" @click="deleteRelay(relay)"></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-primary w-100 mt-3" @click="addingRelay = true"><i class="bi bi-plus"></i>Add Zone</button>
-    <modal :open="addingRelay" @toggle="addingRelay = false">
-      <h2>Add A Zone</h2>
-      <label>Name</label>
-      <input v-model="newRelayName" type="text" placeholder="Zone Name" class="form-control mb-2" />
-      <label>GPIO Pin</label>
-      <input v-model="newRelayGpioPin" type="number" placeholder="GPIO Pin" class="form-control mb-2" />
-      <button @click="addRelay" :disabled="!newRelayName || !newRelayGpioPin || loading" class="btn btn-success w-100">
-        <span v-if="loading" class="spinner-border"></span><span v-else>Add Zone</span>
-      </button>
-    </modal>
+    <zone-list :relays="relays" @add-zone="addingRelay = true" @select-zone="selectedRelay = $event" />
+
+    <NewZone :open="addingRelay" @close="addingRelay = false" />
 
     <modal
       :open="selectedRelay"
@@ -164,12 +115,16 @@
 import { io } from "socket.io-client";
 import Countdown from "./components/Countdown.vue";
 import Modal from "./components/Modal.vue";
+import NewZone from "./components/zones/NewZone.vue";
 import Toggle from "@vueform/toggle";
+import ZoneList from "./components/zones/ZoneList.vue";
 export default {
   components: {
     Countdown,
     Modal,
+    NewZone,
     Toggle,
+    ZoneList,
   },
   name: "App",
 
@@ -180,8 +135,6 @@ export default {
       schedules: [],
       connected: false,
       socket: null,
-      newRelayName: "",
-      newRelayGpioPin: null,
       addingRelay: false,
       selectedRelay: null,
       addingSchedule: false,
@@ -209,38 +162,6 @@ export default {
     getRelays() {
       axios.get("/api/relays").then((response) => {
         this.relays = response.data;
-      });
-    },
-    addRelay() {
-      this.loading = true;
-      axios
-        .post("/api/relays", {
-          name: this.newRelayName,
-          gpio_pin: this.newRelayGpioPin,
-        })
-        .then((response) => {
-          this.newRelayName = "";
-          this.newRelayGpioPin = null;
-          this.addingRelay = false;
-          this.$toast.success("Zone added");
-        })
-        .catch((err) => {
-          this.$toast.error(err.response.data);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    toggleRelayActive(relay) {
-      relay.active = relay.active == 1 ? 0 : 1;
-      axios.post(`/api/relays/${relay.id}`, relay).catch((err) => {
-        relay.active = relay.active == 1 ? 0 : 1;
-        this.$toast.error(err.response.data);
-      });
-    },
-    deleteRelay(relay) {
-      axios.delete(`/api/relays/${relay.id}`).then(() => {
-        this.$toast.success("Zone deleted");
       });
     },
 

@@ -1,7 +1,7 @@
 {
     "name": "pi-flow",
     "version": "1.0.0",
-    "description": "Multi-relay controller with scheduling, sqlite persistence, and websockets (onoff GPIO)",
+    "description": "Multi-relay controller with scheduling, sqlite persistence, and websockets.",
     "main": "src/server.js",
     "type": "module",
     "scripts": {

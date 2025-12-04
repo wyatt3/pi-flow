@@ -1,10 +1,10 @@
 <template>
   <div>
-    <zone-list :zones="zones" @add-zone="addingZone = true" @select-zone="selectedZone = $event" />
-
+    <ZoneList :zones="zones" @add-zone="addingZone = true" @select-zone="selectedZone = $event" />
     <NewZone :open="addingZone" @close="addingZone = false" />
 
-    <modal
+    <Schedules :zone="selectedZone" @close="selectedZone = null" />
+    <!-- <modal
       :open="selectedZone"
       @toggle="
         resetNewSchedule();
@@ -107,7 +107,7 @@
         </div>
       </div>
       <button v-else class="btn btn-success w-100 mt-3" @click="addingSchedule = true">Add New Schedule</button>
-    </modal>
+    </modal> -->
   </div>
 </template>
 
@@ -116,6 +116,7 @@ import { io } from "socket.io-client";
 import Countdown from "./components/Countdown.vue";
 import Modal from "./components/Modal.vue";
 import NewZone from "./components/zones/NewZone.vue";
+import Schedules from "./components/schedules/Schedules.vue";
 import Toggle from "@vueform/toggle";
 import ZoneList from "./components/zones/ZoneList.vue";
 export default {
@@ -123,6 +124,7 @@ export default {
     Countdown,
     Modal,
     NewZone,
+    Schedules,
     Toggle,
     ZoneList,
   },

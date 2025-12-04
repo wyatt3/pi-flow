@@ -17,7 +17,9 @@
 <script>
 import Modal from "../Modal.vue";
 export default {
-  components: { Modal },
+  components: {
+    Modal,
+  },
   props: {
     open: {
       type: Boolean,
@@ -40,7 +42,7 @@ export default {
           name: this.name,
           gpio_pin: this.gpio_pin,
         })
-        .then((response) => {
+        .then(() => {
           this.close();
           this.$toast.success("Zone added");
         })

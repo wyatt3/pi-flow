@@ -24,12 +24,14 @@
 <script>
 import ZoneRow from "./ZoneRow.vue";
 export default {
+  components: {
+    ZoneRow,
+  },
   props: {
     zones: {
       type: Array,
       required: true,
     },
   },
-  components: { ZoneRow },
 };
 </script>

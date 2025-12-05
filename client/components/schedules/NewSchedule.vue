@@ -1,5 +1,5 @@
 <template>
-  <div class="schedule p-3">
+  <div v-if="addingSchedule" class="schedule p-3">
     <label class="fw-bold">Start Time:</label>
     <input v-model="start_time" type="time" class="form-control mb-2" />
 
@@ -10,37 +10,37 @@
     </div>
 
     <label class="fw-bold">Days:</label>
-    <div class="d-flex gap-2 mb-2">
-      <button
-        v-for="(d, i) in dayNames"
-        :key="i"
-        @click="toggleDay(i)"
-        class="btn day-btn"
-        :class="{ 'btn-info': days.includes(i) }"
-      >
-        {{ d }}
-      </button>
-    </div>
+    <Days class="mb-2" v-model="days" />
 
     <div class="mb-2">
       <label class="fw-bold">Type:</label><br />
       <Toggle v-model="one_time" offLabel="Recurring" onLabel="One-Off" />
     </div>
 
-    <button class="btn btn-success w-100" :disabled="!start_time || !duration_min" @click="submit">Save</button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-danger w-50" @click="reset">Cancel</button>
+      <button class="btn btn-success w-50" @click="submit" :disabled="!start_time || !duration_min || loading">
+        <span v-if="loading" class="spinner-border"></span><span v-else>Save</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
+import Days from "../Days.vue";
 import Toggle from "@vueform/toggle";
-
 export default {
   components: {
+    Days,
     Toggle,
+  },
+  props: {
+    zone: Object,
+    addingSchedule: Boolean,
   },
   data() {
     return {
-      dayNames: ["S", "M", "T", "W", "T", "F", "S"],
+      loading: false,
       start_time: null,
       duration_min: null,
       one_time: false,
@@ -48,10 +48,34 @@ export default {
     };
   },
   methods: {
-    toggleDay(i) {
-      this.days.includes(i) ? (this.days = this.days.filter((d) => d !== i)) : this.days.push(i);
+    submit() {
+      this.loading = true;
+      axios
+        .post(`/api/schedules`, {
+          zone_id: this.zone.id,
+          start_time: this.start_time,
+          duration_min: this.duration_min,
+          one_time: this.one_time,
+          days: this.days,
+        })
+        .then(() => {
+          this.reset();
+          this.$toast.success("Schedule created");
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
-    submit() {},
+    reset() {
+      this.start_time = null;
+      this.duration_min = null;
+      this.one_time = false;
+      this.days = [];
+      this.$emit("off");
+    },
   },
 };
 </script>

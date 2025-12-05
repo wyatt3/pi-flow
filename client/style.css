@@ -30,6 +30,8 @@ td {
 }
 
 .schedule {
+    position: relative;
+    padding: 1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
 }

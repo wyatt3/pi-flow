@@ -4,7 +4,13 @@
 
     <ScheduleList :adding-schedule="addingSchedule" :zone="zone" />
 
-    <NewSchedule ref="newSchedule" :zone="zone" :adding-schedule="addingSchedule" @off="addingSchedule = false" />
+    <ScheduleForm
+      v-if="addingSchedule"
+      v-model="newSchedule"
+      :loading="loading"
+      @submit="saveNewSchedule"
+      @cancel="addingSchedule = false"
+    />
     <button v-if="!addingSchedule" class="btn btn-success w-100 mt-3" @click="addingSchedule = true">
       Add New Schedule
     </button>
@@ -13,13 +19,12 @@
 
 <script>
 import Modal from "../Modal.vue";
-import NewSchedule from "./NewSchedule.vue";
+import ScheduleForm from "./ScheduleForm.vue";
 import ScheduleList from "./ScheduleList.vue";
-
 export default {
   components: {
     Modal,
-    NewSchedule,
+    ScheduleForm,
     ScheduleList,
   },
   props: {
@@ -31,13 +36,50 @@ export default {
   },
   data() {
     return {
+      loading: false,
       addingSchedule: false,
+      newSchedule: {
+        start_time: null,
+        duration_min: null,
+        one_time: false,
+        days: [],
+      },
     };
   },
   methods: {
+    saveNewSchedule() {
+      this.loading = true;
+      axios
+        .post(`/api/schedules`, {
+          zone_id: this.zone.id,
+          ...this.newSchedule,
+        })
+        .then(() => {
+          this.addingSchedule = false;
+          this.newSchedule = {
+            start_time: null,
+            duration_min: null,
+            one_time: false,
+            days: [],
+          };
+          this.$toast.success("Schedule created");
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
     close() {
       this.$emit("close");
-      this.$refs.newSchedule.reset();
+      this.addingSchedule = false;
+      this.newSchedule = {
+        start_time: null,
+        duration_min: null,
+        one_time: false,
+        days: [],
+      };
     },
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="addingSchedule" class="schedule p-3">
+  <div class="schedule">
     <label class="fw-bold">Start Time:</label>
     <input v-model="start_time" type="time" class="form-control mb-2" />
 
@@ -18,7 +18,7 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button class="btn btn-danger w-50" @click="reset">Cancel</button>
+      <button class="btn btn-danger w-50" @click="$emit('cancel')">Cancel</button>
       <button class="btn btn-success w-50" @click="submit" :disabled="!start_time || !duration_min || loading">
         <span v-if="loading" class="spinner-border"></span><span v-else>Save</span>
       </button>
@@ -35,47 +35,38 @@ export default {
     Toggle,
   },
   props: {
-    zone: Object,
-    addingSchedule: Boolean,
+    modelValue: {
+      type: Object,
+      required: true,
+    },
+    loading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
-      loading: false,
-      start_time: null,
-      duration_min: null,
-      one_time: false,
-      days: [],
+      start_time: this.modelValue.start_time,
+      duration_min: this.modelValue.duration_min,
+      days: this.modelValue.days,
+      one_time: this.modelValue.one_time,
     };
   },
   methods: {
     submit() {
-      this.loading = true;
-      axios
-        .post(`/api/schedules`, {
-          zone_id: this.zone.id,
-          start_time: this.start_time,
-          duration_min: this.duration_min,
-          one_time: this.one_time,
-          days: this.days,
-        })
-        .then(() => {
-          this.reset();
-          this.$toast.success("Schedule created");
-        })
-        .catch((err) => {
-          this.$toast.error(err.response.data);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    reset() {
-      this.start_time = null;
-      this.duration_min = null;
-      this.one_time = false;
-      this.days = [];
-      this.$emit("off");
+      this.$emit("update:modelValue", {
+        ...this.modelValue,
+        start_time: this.start_time,
+        duration_min: this.duration_min,
+        days: this.days,
+        one_time: this.one_time,
+      });
+      this.$emit("submit");
     },
   },
 };
 </script>
+
+<style scoped>
+</style>

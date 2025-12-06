@@ -124,3 +124,47 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.schedule-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.delete-schedule {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+@media screen and (min-width: 600px) {
+  .start-time {
+    order: 1;
+  }
+
+  .duration {
+    order: 3;
+  }
+
+  .days {
+    order: 2;
+  }
+
+  .type {
+    order: 4;
+  }
+
+  .status {
+    order: 5;
+  }
+
+  .schedule-item {
+    width: 50%;
+  }
+}
+</style>

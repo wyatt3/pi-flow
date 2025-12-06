@@ -51,13 +51,11 @@
 import Countdown from "../Countdown.vue";
 import Days from "../Days.vue";
 import ScheduleForm from "./ScheduleForm.vue";
-import Toggle from "@vueform/toggle";
 export default {
   components: {
     Countdown,
     Days,
     ScheduleForm,
-    Toggle,
   },
   props: {
     schedule: {

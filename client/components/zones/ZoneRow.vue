@@ -9,17 +9,17 @@
       </button>
     </td>
 
-    <td>
+    <td class="status-button-td">
       <button
         @click="toggleActive"
         :disabled="runningSchedules.length > 0"
-        class="btn"
+        class="btn status-button"
         :class="zone.active == 1 ? 'btn-danger' : 'btn-success'"
       >
         {{ zone.active == 1 ? "OFF" : "ON" }}
 
         <div v-if="runningSchedules.length > 0">
-          <i class="bi bi-alarm"></i>
+          <i class="bi bi-alarm me-2"></i>
           <Countdown :startTime="runningSchedules[0].start_time" :durationMin="runningSchedules[0].duration_min" />
         </div>
       </button>
@@ -64,3 +64,19 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+td {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.status-button-td {
+  padding: 5px;
+}
+
+.status-button {
+  min-width: 90px;
+  padding: 6px;
+}
+</style>

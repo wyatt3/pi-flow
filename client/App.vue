@@ -2,26 +2,19 @@
   <div>
     <ZoneList :zones="zones" @add-zone="addingZone = true" @select-zone="selectedZone = $event" />
     <NewZone :open="addingZone" @close="addingZone = false" />
-
     <SchedulesModal :zone="selectedZone" @close="selectedZone = null" />
   </div>
 </template>
 
 <script>
 import { io } from "socket.io-client";
-import Countdown from "./components/Countdown.vue";
-import Modal from "./components/Modal.vue";
 import NewZone from "./components/zones/NewZone.vue";
 import SchedulesModal from "./components/schedules/SchedulesModal.vue";
-import Toggle from "@vueform/toggle";
 import ZoneList from "./components/zones/ZoneList.vue";
 export default {
   components: {
-    Countdown,
-    Modal,
     NewZone,
     SchedulesModal,
-    Toggle,
     ZoneList,
   },
   name: "App",

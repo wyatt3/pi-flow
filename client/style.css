@@ -1,26 +1,9 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-:root {
-    --toggle-width: 6rem;
-    --toggle-bg-on: #ffc107;
-    --toggle-bg-off: #0dcaf0;
-    --toggle-border-on: #e7af06;
-    --toggle-border-off: #0eb3d4;
-    --toggle-text-on: #333;
-    --toggle-height: 1.75rem;
-    --toggle-width: 6.5rem;
-    --toggle-border: 0.15rem;
-    --toggle-font-size: 0.85rem;
-}
-
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
-}
-
-td {
-    vertical-align: middle;
 }
 
 .schedule {

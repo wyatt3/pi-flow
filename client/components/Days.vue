@@ -1,14 +1,13 @@
 <template>
   <div class="d-flex gap-2">
-    <button
-      v-for="(d, i) in dayNames"
-      :key="i"
-      @click="toggleDay(i)"
-      class="btn day-btn"
-      :class="{ 'btn-info': days.includes(i) }"
-    >
-      {{ d }}
-    </button>
+    <template v-for="(day, i) in dayNames" :key="i">
+      <span v-if="readOnly" class="day-box" :class="{ 'bg-info': days.includes(i) }">
+        {{ day }}
+      </span>
+      <button v-else @click="toggleDay(i)" class="btn day-btn" :class="{ 'btn-info': days.includes(i) }">
+        {{ day }}
+      </button>
+    </template>
   </div>
 </template>
 
@@ -18,6 +17,10 @@ export default {
     modelValue: {
       type: Array,
       required: true,
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {

@@ -12,7 +12,7 @@
     <label class="fw-bold">Days:</label>
     <Days class="mb-2" v-model="days" />
 
-    <div class="mb-2">
+    <div class="mb-3">
       <label class="fw-bold">Type:</label><br />
       <Toggle v-model="one_time" offLabel="Recurring" onLabel="One-Off" />
     </div>

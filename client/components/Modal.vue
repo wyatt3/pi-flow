@@ -45,7 +45,7 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 95%;
-  max-width: 1200px;
+  max-width: 700px;
   border-radius: 10px;
   background-color: #fff;
   z-index: 101;

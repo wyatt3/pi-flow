@@ -1,5 +1,6 @@
 import db from '../config/db.js';
 import Zone from '../models/zone.js';
+import ScheduleService from './scheduleService.js';
 import websocketService from '../services/websocketService.js';
 
 
@@ -26,7 +27,7 @@ export default class ZoneService {
 
     static delete(zone) {
         if (zone.gpio) zone.gpio.writeSync(1);
-        //TODO: delete schedules
+        ScheduleService.deleteByZone(zone);
         db.prepare(`DELETE FROM zones WHERE id = ?`).run(zone.id);
         websocketService.broadcastUpdate();
     }

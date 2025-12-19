@@ -63,7 +63,6 @@ export default class ScheduleService {
                 VALUES (?, ?)`
             ).run(schedule.id, day);
         })
-        return;
     }
 
     static deleteSchedule(schedule) {
@@ -74,6 +73,15 @@ export default class ScheduleService {
             `DELETE FROM schedule_days WHERE schedule_id = ?`
         ).run(schedule.id);
         websocketService.broadcastUpdate();
+    }
+
+    static deleteByZone(zone) {
+        db.prepare(
+            `DELETE FROM schedule_days WHERE schedule_id IN (SELECT id FROM schedules WHERE zone_id = ?)`
+        ).run(zone.id);
+        db.prepare(
+            `DELETE FROM schedules WHERE zone_id = ?`
+        ).run(zone.id);
     }
 
     static skipNextOccurrence(schedule) {
@@ -125,10 +133,22 @@ export default class ScheduleService {
 
         const timeout = schedule.duration_min * 60 * 1000;
         setTimeout(() => {
+            const scheduleExists = db.prepare(
+                `SELECT * FROM schedules WHERE id = ?`
+            ).get(schedule.id);
+            const zoneExists = db.prepare(
+                `SELECT * FROM zones WHERE id = ?`
+            ).get(schedule.zone_id);
+
+            if (!zoneExists || !scheduleExists) {
+                console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
+                ScheduleService.deleteSchedule(schedule);
+                return;
+            }
+
             console.log(`[${moment().tz(process.env.TIMEZONE).format('YYYY-MM-DD HH:mm')}] Schedule: ${schedule.id} complete`);
             ZoneService.save(zone, 1);
             console.log(`Deactivated GPIO Pin: ${zone.gpio_pin}`);
-
             db.prepare(
                 `UPDATE schedules SET status = ? WHERE id = ?`
             ).run('idle', schedule.id);

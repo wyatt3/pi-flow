@@ -7,20 +7,47 @@ import ZoneService from './zoneService.js';
 
 export default class ScheduleService {
     static createSchedule(zone, start_time, duration_min, one_time, days) {
+        ScheduleService.checkForScheduleOverlap(
+            zone.id,
+            start_time,
+            duration_min,
+            days
+        );
+
         const result = db.prepare(
             `INSERT INTO schedules (zone_id, start_time, duration_min, one_time)
-            VALUES (?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?)`
         ).run(zone.id, start_time, duration_min, Number(one_time));
-        const schedule = new Schedule({ id: result.lastInsertRowid, zone_id: zone.id, start_time: start_time, duration_min: duration_min, one_time: one_time, status: 'scheduled' });
+
+        const schedule = new Schedule({
+            id: result.lastInsertRowid,
+            zone_id: zone.id,
+            start_time,
+            duration_min,
+            one_time,
+            status: 'scheduled'
+        });
+
         ScheduleService.setDays(schedule, days);
         websocketService.broadcastUpdate();
         return schedule;
     }
 
     static updateSchedule(schedule, start_time, duration_min, one_time, skip_next, days) {
+        ScheduleService.checkForScheduleOverlap(
+            schedule.zone_id,
+            start_time,
+            duration_min,
+            days,
+            schedule.id
+        );
+
         db.prepare(
-            `UPDATE schedules SET start_time = ?, duration_min = ?, one_time = ?, skip_next = ? WHERE id = ?`
+            `UPDATE schedules
+         SET start_time = ?, duration_min = ?, one_time = ?, skip_next = ?
+         WHERE id = ?`
         ).run(start_time, duration_min, Number(one_time), Number(skip_next), schedule.id);
+
         ScheduleService.setDays(schedule, days);
         websocketService.broadcastUpdate();
         return schedule;
@@ -112,5 +139,57 @@ export default class ScheduleService {
             }
             websocketService.broadcastUpdate();
         }, timeout);
+    }
+
+    static checkForScheduleOverlap(
+        zone_id,
+        start_time,
+        duration_min,
+        days,
+        excludeScheduleId = null
+    ) {
+        const rows = db.prepare(`
+        SELECT s.id, s.start_time, s.duration_min, sd.day
+        FROM schedules s
+        JOIN schedule_days sd ON sd.schedule_id = s.id
+        WHERE s.zone_id = ?
+        ${excludeScheduleId ? 'AND s.id != ?' : ''}
+    `).all(
+            excludeScheduleId ? [zone_id, excludeScheduleId] : [zone_id]
+        );
+
+        const schedules = {};
+        rows.forEach(row => {
+            if (!schedules[row.id]) {
+                schedules[row.id] = {
+                    start_time: row.start_time,
+                    duration_min: row.duration_min,
+                    days: []
+                };
+            }
+            schedules[row.id].days.push(row.day);
+        });
+
+        const toMinutes = (time) => {
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
+        };
+
+        const newStart = toMinutes(start_time);
+        const newEnd = newStart + duration_min;
+
+        for (const s of Object.values(schedules)) {
+            const dayOverlap = days.some(day => s.days.includes(day));
+            if (!dayOverlap) continue;
+
+            const existingStart = toMinutes(s.start_time);
+            const existingEnd = existingStart + s.duration_min;
+
+            if (newStart < existingEnd && newEnd > existingStart) {
+                throw new Error(
+                    'Schedule overlaps with an existing schedule on this zone.'
+                );
+            }
+        }
     }
 }

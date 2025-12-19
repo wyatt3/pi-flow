@@ -140,7 +140,7 @@ export default {
   padding: 0;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 675px) {
   .start-time {
     order: 1;
   }

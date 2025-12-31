@@ -1,6 +1,7 @@
 .env
 docker-compose.override.yml
-database/
+database/*
 node_modules/
 public/*
 src/config/pinToLineMap.json
+coverage/

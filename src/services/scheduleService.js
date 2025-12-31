@@ -117,12 +117,12 @@ export default class ScheduleService {
         const result = db.prepare(
             `SELECT * FROM zones WHERE id = ?`
         ).get(schedule.zone_id);
-        const zone = new Zone(result);
-        if (!zone) {
+        if (!result) {
             console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
             ScheduleService.deleteSchedule(schedule);
             return;
         }
+        const zone = new Zone(result);
         ZoneService.save(zone, 0);
         console.log(`Activated GPIO Pin: ${zone.gpio_pin}`);
 
@@ -172,8 +172,7 @@ export default class ScheduleService {
         SELECT s.id, s.start_time, s.duration_min, sd.day
         FROM schedules s
         JOIN schedule_days sd ON sd.schedule_id = s.id
-        WHERE s.zone_id = ?
-        ${excludeScheduleId ? 'AND s.id != ?' : ''}
+        WHERE s.zone_id = ? ${excludeScheduleId ? 'AND s.id != ?' : ''}
     `).all(
             excludeScheduleId ? [zone_id, excludeScheduleId] : [zone_id]
         );

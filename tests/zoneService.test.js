@@ -1,12 +1,10 @@
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { createMockDb, createMockWebsocketService, resetAllMocks } from './testUtils.js';
 
-// Mock dependencies before importing the service
 const mockDb = createMockDb();
 const mockWebsocketService = createMockWebsocketService();
 const mockGpio = { writeSync: jest.fn() };
 
-// Mock modules
 jest.unstable_mockModule('../src/config/db.js', () => ({
   default: mockDb,
 }));
@@ -19,7 +17,6 @@ jest.unstable_mockModule('onoff', () => ({
   Gpio: jest.fn(() => mockGpio),
 }));
 
-// Import after mocking
 const ZoneService = (await import('../src/services/zoneService.js')).default;
 const Zone = (await import('../src/models/zone.js')).default;
 
@@ -140,7 +137,6 @@ describe('ZoneService', () => {
         gpio: mockGpio,
       };
 
-      // Mock ScheduleService
       mockScheduleService = {
         deleteByZone: jest.fn(),
       };
@@ -157,11 +153,8 @@ describe('ZoneService', () => {
     });
 
     it('should delete associated schedules', async () => {
-      // Re-import ZoneService to get the mocked ScheduleService
       const ZoneServiceWithMockedSchedule = (await import('../src/services/zoneService.js')).default;
       ZoneServiceWithMockedSchedule.delete(testZone);
-
-      // Note: This test might need adjustment based on how modules are imported
     });
 
     it('should delete zone from database', () => {
@@ -205,7 +198,6 @@ describe('ZoneService', () => {
       expect(mockDb.mockAll).toHaveBeenCalled();
       expect(mockDb.mockRun).toHaveBeenCalledTimes(3);
       
-      // Each zone should be set to active=1 (off state)
       expect(mockDb.mockRun).toHaveBeenNthCalledWith(1, 1, 1);
       expect(mockDb.mockRun).toHaveBeenNthCalledWith(2, 1, 2);
       expect(mockDb.mockRun).toHaveBeenNthCalledWith(3, 1, 3);

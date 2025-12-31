@@ -19,7 +19,7 @@ export default class ZoneController {
     static create(req, res) {
         const { name, gpio_pin } = req.body;
         if (!name || gpio_pin == null) return res.status(400).json('name & gpio_pin required');
-        if (!(pinToLineMap[gpio_pin])) return res.status(400).json('Invalid GPIO pin');
+        if (!(gpio_pin in pinToLineMap)) return res.status(400).json('Invalid GPIO pin');
         try {
             const zone = ZoneService.create(name, gpio_pin);
             return res.status(201).json(zone);

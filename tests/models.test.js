@@ -1,7 +1,6 @@
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { createMockDb, resetAllMocks } from './testUtils.js';
 
-// Mock dependencies
 const mockDb = createMockDb();
 const mockGpio = jest.fn(() => ({
   writeSync: jest.fn(),
@@ -9,7 +8,6 @@ const mockGpio = jest.fn(() => ({
   unexport: jest.fn(),
 }));
 
-// Mock modules
 jest.unstable_mockModule('../src/config/db.js', () => ({
   default: mockDb,
 }));
@@ -22,10 +20,8 @@ jest.unstable_mockModule('../src/config/pinToLineMap.js', () => ({
   default: { 17: 0, 27: 2, 22: 3 },
 }));
 
-// Set GPIO disabled by default
 process.env.GPIO_ENABLED = 'false';
 
-// Import after mocking
 const Zone = (await import('../src/models/zone.js')).default;
 const Schedule = (await import('../src/models/schedule.js')).default;
 
@@ -104,7 +100,7 @@ describe('Zone Model', () => {
         active: 0,
       });
 
-      expect(mockGpio).toHaveBeenCalledWith(0, 'out'); // pin 17 maps to line 0
+      expect(mockGpio).toHaveBeenCalledWith(0, 'out');
     });
 
     it('should initialize GPIO as high when active is 1', () => {
@@ -143,9 +139,7 @@ describe('Zone Model', () => {
         },
       ];
 
-      mockDb.mockAll
-        .mockReturnValueOnce(mockSchedules)
-        .mockReturnValue([]); // For schedule days
+      mockDb.mockAll.mockReturnValueOnce(mockSchedules).mockReturnValue([]);
 
       const zone = new Zone({
         id: 1,

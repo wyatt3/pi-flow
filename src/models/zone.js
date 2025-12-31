@@ -11,7 +11,6 @@ export default class Zone {
         this.gpio_pin = gpio_pin;
         this.active = active;
         this.gpio = gpioEnabled ? new Gpio(pinToLineMap[this.gpio_pin], active == 0 ? 'out' : 'high') : null;
-        const result = db.prepare('SELECT * FROM schedules WHERE zone_id = ? ORDER BY start_time').all(this.id);
-        this.schedules = result.map((schedule) => new Schedule(schedule));
+        this.schedules = db.prepare('SELECT * FROM schedules WHERE zone_id = ? ORDER BY start_time').all(this.id).map((schedule) => new Schedule(schedule));
     }
 }

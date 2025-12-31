@@ -13,6 +13,7 @@ class websocketService {
         this.io.on('connection', socket => {
             console.log('Socket connected', socket.id);
         });
+        return this.io;
     }
 
     broadcastUpdate() {

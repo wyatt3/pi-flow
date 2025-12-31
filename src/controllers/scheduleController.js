@@ -11,10 +11,10 @@ export default class ScheduleController {
             return res.status(400).json({ error: 'zone_id, start_time, duration_min, one_time, days required' });
         }
         const result = db.prepare('SELECT * FROM zones WHERE id = ?').get(zone_id);
-        const zone = new Zone(result);
-        if (!zone) {
+        if (!result) {
             return res.status(400).json({ error: 'invalid zone_id' });
         }
+        const zone = new Zone(result);
 
         try {
             const schedule = ScheduleService.createSchedule(zone, start_time, duration_min, one_time, days);

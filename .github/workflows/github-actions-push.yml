@@ -1,0 +1,34 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+  
+    - name: Install NPM dependencies
+      run: npm install
+
+    - name: Copy .env
+      run: cp .env.example .env
+      
+    - name: Create Database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Run Tests
+      run: npm run test

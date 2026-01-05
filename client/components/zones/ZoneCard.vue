@@ -1,5 +1,5 @@
 <template>
-  <div class="zone-card" :class="{ 'is-active': zone.active == 1 }">
+  <div class="zone-card" :class="{ 'is-active': zone.active == 0 }">
     <div class="zone-card-header">
       <div class="zone-card-info">
         <h3>{{ zone.name }}</h3>
@@ -9,21 +9,14 @@
         </span>
       </div>
       <div class="zone-card-actions">
-        <button
-          class="btn-pf btn-pf-ghost btn-pf-icon"
-          @click="deleteZone"
-          title="Delete zone"
-        >
+        <button class="btn-pf btn-pf-ghost btn-pf-icon" @click="deleteZone" title="Delete zone">
           <i class="bi bi-trash"></i>
         </button>
       </div>
     </div>
 
     <div class="zone-card-footer">
-      <button
-        class="btn-pf btn-pf-info"
-        @click="$emit('select-zone', zone)"
-      >
+      <button class="btn-pf btn-pf-info" @click="$emit('select-zone', zone)">
         <i class="bi bi-calendar-week"></i>
         Schedules
         <span v-if="zone.schedules.length > 0" class="schedule-count">
@@ -35,17 +28,14 @@
         @click="toggleActive"
         :disabled="runningSchedules.length > 0"
         class="status-toggle"
-        :class="zone.active == 1 ? 'is-on' : 'is-off'"
+        :class="zone.active == 0 ? 'is-on' : 'is-off'"
       >
         <span class="status-dot"></span>
         <span v-if="runningSchedules.length > 0" class="running-info">
-          <Countdown
-            :startTime="runningSchedules[0].start_time"
-            :durationMin="runningSchedules[0].duration_min"
-          />
+          <Countdown :startTime="runningSchedules[0].start_time" :durationMin="runningSchedules[0].duration_min" />
         </span>
         <span v-else>
-          {{ zone.active == 1 ? "ON" : "OFF" }}
+          {{ zone.active == 0 ? "ON" : "OFF" }}
         </span>
       </button>
     </div>
@@ -103,7 +93,7 @@ export default {
 }
 
 .running-info {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
   font-weight: 600;
 }
 </style>

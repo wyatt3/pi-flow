@@ -1,26 +1,46 @@
 <template>
-  <div class="schedule">
-    <label class="fw-bold">Start Time:</label>
-    <input v-model="start_time" type="time" class="form-control mb-2" />
+  <div class="schedule-card schedule-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label-pf">Start Time</label>
+        <input v-model="start_time" type="time" class="form-input-pf" />
+      </div>
 
-    <label class="fw-bold">Duration:</label>
-    <div class="input-group mb-2">
-      <input v-model="duration_min" type="number" class="form-control" />
-      <span class="input-group-text">minutes</span>
+      <div class="form-group">
+        <label class="form-label-pf">Duration</label>
+        <div class="input-group-pf">
+          <input v-model="duration_min" type="number" class="form-input-pf" placeholder="30" />
+          <span class="input-addon">min</span>
+        </div>
+      </div>
     </div>
 
-    <label class="fw-bold">Days:</label>
-    <Days class="mb-2" v-model="days" />
-
-    <div class="mb-3">
-      <label class="fw-bold">Type:</label><br />
-      <Toggle v-model="one_time" offLabel="Recurring" onLabel="One-Off" />
+    <div class="form-group">
+      <label class="form-label-pf">Days</label>
+      <Days v-model="days" />
     </div>
 
-    <div class="d-flex gap-2">
-      <button class="btn btn-danger w-50" @click="$emit('cancel')">Cancel</button>
-      <button class="btn btn-success w-50" @click="submit" :disabled="!start_time || !duration_min || loading">
-        <span v-if="loading" class="spinner-border"></span><span v-else>Save</span>
+    <div class="form-group">
+      <label class="form-label-pf">Schedule Type</label>
+      <div class="type-toggle">
+        <Toggle v-model="one_time" offLabel="Recurring" onLabel="One-Off" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-pf btn-pf-outline" @click="$emit('cancel')">
+        Cancel
+      </button>
+      <button
+        class="btn-pf btn-pf-success"
+        @click="submit"
+        :disabled="!start_time || !duration_min || loading"
+      >
+        <span v-if="loading" class="spinner-pf"></span>
+        <template v-else>
+          <i class="bi bi-check-lg"></i>
+          Save
+        </template>
       </button>
     </div>
   </div>
@@ -69,4 +89,40 @@ export default {
 </script>
 
 <style scoped>
+.schedule-form {
+  background: var(--pf-bg);
+  border-style: dashed;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.type-toggle {
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--pf-border-dark);
+}
+
+.form-actions .btn-pf {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

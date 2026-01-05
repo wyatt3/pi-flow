@@ -1,27 +1,689 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
+/* ============================================
+   Pi Flow - Modern Design System
+   ============================================ */
+
 :root {
-    --toggle-width: 6rem;
-    --toggle-bg-on: #ffc107;
-    --toggle-bg-off: #0dcaf0;
-    --toggle-border-on: #e7af06;
-    --toggle-border-off: #0eb3d4;
-    --toggle-text-on: #333;
-    --toggle-height: 1.75rem;
+    /* Primary Colors */
+    --pf-primary: #4F46E5;
+    --pf-primary-hover: #4338CA;
+    --pf-primary-light: #EEF2FF;
+
+    /* Status Colors */
+    --pf-success: #10B981;
+    --pf-success-hover: #059669;
+    --pf-success-light: #D1FAE5;
+
+    --pf-danger: #EF4444;
+    --pf-danger-hover: #DC2626;
+    --pf-danger-light: #FEE2E2;
+
+    --pf-warning: #F59E0B;
+    --pf-warning-hover: #D97706;
+    --pf-warning-light: #FEF3C7;
+
+    --pf-info: #3B82F6;
+    --pf-info-hover: #2563EB;
+    --pf-info-light: #DBEAFE;
+
+    /* Neutral Colors */
+    --pf-bg: #F3F4F6;
+    --pf-card: #FFFFFF;
+    --pf-text: #111827;
+    --pf-text-muted: #6B7280;
+    --pf-border: #E5E7EB;
+    --pf-border-dark: #D1D5DB;
+
+    /* Spacing */
+    --pf-radius-sm: 6px;
+    --pf-radius: 8px;
+    --pf-radius-lg: 12px;
+    --pf-radius-xl: 16px;
+
+    /* Shadows */
+    --pf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --pf-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --pf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --pf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --pf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Toggle Styles */
     --toggle-width: 6.5rem;
+    --toggle-height: 1.75rem;
+    --toggle-bg-on: var(--pf-warning);
+    --toggle-bg-off: var(--pf-info);
+    --toggle-border-on: var(--pf-warning-hover);
+    --toggle-border-off: var(--pf-info-hover);
+    --toggle-text-on: #333;
     --toggle-border: 0.15rem;
     --toggle-font-size: 0.85rem;
+
+    /* Transitions */
+    --pf-transition: 200ms ease;
+    --pf-transition-fast: 150ms ease;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--pf-bg);
+    color: var(--pf-text);
+    line-height: 1.5;
 }
 
-.schedule {
+/* ============================================
+   Navbar
+   ============================================ */
+
+.navbar-pf {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+    padding: 1rem 2rem;
+    box-shadow: var(--pf-shadow-md);
+}
+
+.navbar-pf .navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-pf .navbar-brand i {
+    color: var(--pf-success);
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+
+.card-pf {
+    background: var(--pf-card);
+    border-radius: var(--pf-radius-lg);
+    box-shadow: var(--pf-shadow);
+    border: 1px solid var(--pf-border);
+    padding: 1.25rem;
+    transition: box-shadow var(--pf-transition), transform var(--pf-transition);
+}
+
+.card-pf:hover {
+    box-shadow: var(--pf-shadow-md);
+}
+
+.card-pf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--pf-border);
+}
+
+.card-pf-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--pf-text);
+    margin: 0;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn-pf {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--pf-radius);
+    border: none;
+    cursor: pointer;
+    transition: all var(--pf-transition);
+    text-decoration: none;
+}
+
+.btn-pf:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-pf-primary {
+    background: var(--pf-primary);
+    color: #fff;
+}
+.btn-pf-primary:hover:not(:disabled) {
+    background: var(--pf-primary-hover);
+    color: #fff;
+}
+
+.btn-pf-success {
+    background: var(--pf-success);
+    color: #fff;
+}
+.btn-pf-success:hover:not(:disabled) {
+    background: var(--pf-success-hover);
+    color: #fff;
+}
+
+.btn-pf-danger {
+    background: var(--pf-danger);
+    color: #fff;
+}
+.btn-pf-danger:hover:not(:disabled) {
+    background: var(--pf-danger-hover);
+    color: #fff;
+}
+
+.btn-pf-warning {
+    background: var(--pf-warning);
+    color: #fff;
+}
+.btn-pf-warning:hover:not(:disabled) {
+    background: var(--pf-warning-hover);
+    color: #fff;
+}
+
+.btn-pf-info {
+    background: var(--pf-info);
+    color: #fff;
+}
+.btn-pf-info:hover:not(:disabled) {
+    background: var(--pf-info-hover);
+    color: #fff;
+}
+
+.btn-pf-outline {
+    background: transparent;
+    border: 1px solid var(--pf-border-dark);
+    color: var(--pf-text);
+}
+.btn-pf-outline:hover:not(:disabled) {
+    background: var(--pf-bg);
+    border-color: var(--pf-text-muted);
+}
+
+.btn-pf-ghost {
+    background: transparent;
+    color: var(--pf-text-muted);
+    padding: 0.5rem;
+}
+.btn-pf-ghost:hover:not(:disabled) {
+    background: var(--pf-bg);
+    color: var(--pf-text);
+}
+
+.btn-pf-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: var(--pf-radius);
+}
+
+.btn-pf-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btn-pf-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+/* ============================================
+   Status Badges
+   ============================================ */
+
+.badge-pf {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    border-radius: 9999px;
+}
+
+.badge-pf-success {
+    background: var(--pf-success-light);
+    color: var(--pf-success);
+}
+
+.badge-pf-danger {
+    background: var(--pf-danger-light);
+    color: var(--pf-danger);
+}
+
+.badge-pf-warning {
+    background: var(--pf-warning-light);
+    color: #92400E;
+}
+
+.badge-pf-info {
+    background: var(--pf-info-light);
+    color: var(--pf-info);
+}
+
+.badge-pf-muted {
+    background: var(--pf-bg);
+    color: var(--pf-text-muted);
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+
+.form-label-pf {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pf-text);
+    margin-bottom: 0.375rem;
+}
+
+.form-input-pf {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    border: 1px solid var(--pf-border-dark);
+    border-radius: var(--pf-radius);
+    background: var(--pf-card);
+    color: var(--pf-text);
+    transition: border-color var(--pf-transition), box-shadow var(--pf-transition);
+}
+
+.form-input-pf:focus {
+    outline: none;
+    border-color: var(--pf-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-input-pf::placeholder {
+    color: var(--pf-text-muted);
+}
+
+.input-group-pf {
+    display: flex;
+}
+
+.input-group-pf .form-input-pf {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group-pf .input-addon {
+    padding: 0.625rem 0.875rem;
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border-dark);
+    border-left: none;
+    border-radius: 0 var(--pf-radius) var(--pf-radius) 0;
+    color: var(--pf-text-muted);
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   Schedule Card
+   ============================================ */
+
+.schedule-card {
     position: relative;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    background: var(--pf-card);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius-lg);
+    padding: 1.25rem;
+    transition: all var(--pf-transition);
+}
+
+.schedule-card:hover {
+    border-color: var(--pf-border-dark);
+    box-shadow: var(--pf-shadow);
+}
+
+.schedule-card.is-running {
+    border-color: var(--pf-warning);
+    background: linear-gradient(to right, var(--pf-warning-light), var(--pf-card));
+}
+
+/* ============================================
+   Zone Card
+   ============================================ */
+
+.zone-card {
+    background: var(--pf-card);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius-lg);
+    padding: 1.25rem;
+    transition: all var(--pf-transition);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.zone-card:hover {
+    border-color: var(--pf-border-dark);
+    box-shadow: var(--pf-shadow-md);
+}
+
+.zone-card.is-active {
+    border-color: var(--pf-success);
+    box-shadow: 0 0 0 1px var(--pf-success);
+}
+
+.zone-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.zone-card-info h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--pf-text);
+}
+
+.zone-card-info .gpio-label {
+    font-size: 0.8125rem;
+    color: var(--pf-text-muted);
+}
+
+.zone-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.zone-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--pf-border);
+}
+
+/* ============================================
+   Status Toggle Button
+   ============================================ */
+
+.status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--pf-radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all var(--pf-transition);
+    min-width: 100px;
+}
+
+.status-toggle.is-on {
+    background: var(--pf-success-light);
+    color: var(--pf-success);
+}
+
+.status-toggle.is-on:hover:not(:disabled) {
+    background: var(--pf-success);
+    color: #fff;
+}
+
+.status-toggle.is-off {
+    background: var(--pf-bg);
+    color: var(--pf-text-muted);
+}
+
+.status-toggle.is-off:hover:not(:disabled) {
+    background: var(--pf-danger-light);
+    color: var(--pf-danger);
+}
+
+.status-toggle:disabled {
+    cursor: not-allowed;
+}
+
+.status-toggle .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-toggle.is-on .status-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   Countdown Timer
+   ============================================ */
+
+.countdown-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pf-warning-hover);
+}
+
+.countdown-display i {
+    animation: pulse-icon 1s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ============================================
+   Day Selector
+   ============================================ */
+
+.day-selector {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.day-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: var(--pf-radius);
+    border: 1px solid var(--pf-border-dark);
+    background: var(--pf-card);
+    color: var(--pf-text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--pf-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day-btn:hover:not(.is-readonly) {
+    border-color: var(--pf-primary);
+    color: var(--pf-primary);
+}
+
+.day-btn.is-active {
+    background: var(--pf-primary);
+    border-color: var(--pf-primary);
+    color: #fff;
+}
+
+.day-btn.is-readonly {
+    cursor: default;
+}
+
+.day-btn.is-readonly:not(.is-active) {
+    background: var(--pf-bg);
+    border-color: transparent;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--pf-text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--pf-text);
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+/* ============================================
+   Grid Layout
+   ============================================ */
+
+.zone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+    .zone-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Page Header
+   ============================================ */
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pf-text);
+    margin: 0;
+}
+
+/* ============================================
+   Modal Enhancements
+   ============================================ */
+
+.modal-header-pf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--pf-border);
+}
+
+.modal-header-pf h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--pf-text);
+}
+
+.modal-close-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--pf-text-muted);
+    border-radius: var(--pf-radius);
+    cursor: pointer;
+    transition: all var(--pf-transition-fast);
+}
+
+.modal-close-btn:hover {
+    background: var(--pf-bg);
+    color: var(--pf-text);
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+
+.text-muted {
+    color: var(--pf-text-muted) !important;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+/* Loading Spinner */
+.spinner-pf {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   App Container
+   ============================================ */
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+    .app-container {
+        padding: 1.5rem 1rem;
+    }
 }

@@ -1,8 +1,7 @@
 <template>
-  <transition name="modal-fade">
-    <div class="modal-container" v-if="open">
-      <div class="background" @click="toggle"></div>
-      <div class="modal-body text-dark">
+  <transition name="modal">
+    <div class="modal-overlay" v-if="open" @click.self="toggle">
+      <div class="modal-container">
         <slot></slot>
       </div>
     </div>
@@ -27,50 +26,61 @@ export default {
 </script>
 
 <style scoped>
-.background {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
-.modal-body {
-  padding: 20px;
-  max-height: 85%;
+
+.modal-container {
+  background: var(--pf-card);
+  border-radius: var(--pf-radius-xl);
+  box-shadow: var(--pf-shadow-xl);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
   overflow-y: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 95%;
-  max-width: 700px;
-  border-radius: 10px;
-  background-color: #fff;
-  z-index: 101;
+  padding: 1.5rem;
 }
 
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.2s;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 100%;
+/* Transition animations */
+.modal-enter-active {
+  transition: opacity 0.25s ease;
 }
 
-.modal-fade-enter-active .background,
-.modal-fade-enter-active .modal-body,
-.modal-fade-leave-active .background,
-.modal-fade-leave-active .modal-body {
-  transition: opacity 0.2s;
+.modal-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-.modal-fade-enter-from .background,
-.modal-fade-enter-from .modal-body,
-.modal-fade-leave-to .background,
-.modal-fade-leave-to .modal-body {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
+}
+
+.modal-enter-active .modal-container {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.modal-leave-active .modal-container {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from .modal-container {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.modal-leave-to .modal-container {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
 }
 </style>

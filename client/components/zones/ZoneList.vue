@@ -1,31 +1,35 @@
 <template>
   <div>
-    <h1 class="text-xl font-bold">Zones</h1>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>GPIO Pin</th>
-          <th>Schedule</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
+    <div class="page-header">
+      <h1>Zones</h1>
+      <button class="btn-pf btn-pf-primary" @click="$emit('add-zone')">
+        <i class="bi bi-plus-lg"></i>
+        Add Zone
+      </button>
+    </div>
 
-      <tbody>
-        <ZoneRow v-for="zone in zones" :key="zone.id" :zone="zone" @select-zone="$emit('select-zone', $event)" />
-      </tbody>
-    </table>
+    <div v-if="zones.length === 0" class="empty-state">
+      <i class="bi bi-droplet"></i>
+      <h3>No zones yet</h3>
+      <p>Add your first zone to get started with scheduling.</p>
+    </div>
 
-    <button class="btn btn-primary w-100 mt-3" @click="$emit('add-zone')"><i class="bi bi-plus"></i> Add Zone</button>
+    <div v-else class="zone-grid">
+      <ZoneCard
+        v-for="zone in zones"
+        :key="zone.id"
+        :zone="zone"
+        @select-zone="$emit('select-zone', $event)"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import ZoneRow from "./ZoneRow.vue";
+import ZoneCard from "./ZoneCard.vue";
 export default {
   components: {
-    ZoneRow,
+    ZoneCard,
   },
   props: {
     zones: {
@@ -35,9 +39,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-th {
-  text-align: center;
-}
-</style>

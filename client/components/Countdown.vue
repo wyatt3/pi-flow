@@ -1,5 +1,8 @@
 <template>
-  <span>{{ remaining }}</span>
+  <span class="countdown-display">
+    <i class="bi bi-clock"></i>
+    {{ remaining }}
+  </span>
 </template>
 
 <script>

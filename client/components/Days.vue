@@ -1,14 +1,19 @@
 <template>
-  <div class="d-flex gap-2">
+  <div class="day-selector">
     <template v-for="(day, i) in dayNames" :key="i">
-      <span v-if="readOnly" class="day" :class="{ 'bg-info': days.includes(i) }">
+      <span
+        v-if="readOnly"
+        class="day-btn"
+        :class="{ 'is-active': days.includes(i), 'is-readonly': true }"
+      >
         {{ day }}
       </span>
       <button
         v-else
         @click="toggleDay(i)"
-        class="day btn day-btn"
-        :class="{ 'btn-info': days.includes(i), 'btn-outline-dark': !days.includes(i) }"
+        class="day-btn"
+        :class="{ 'is-active': days.includes(i) }"
+        type="button"
       >
         {{ day }}
       </button>
@@ -46,16 +51,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.day {
-  width: 27px;
-  height: 27px;
-  padding: 0;
-  border-radius: 5px;
-  text-align: center;
-}
-.day:not(.bg-info):not(.btn-info) {
-  border: 1px solid var(--bs-dark);
-}
-</style>

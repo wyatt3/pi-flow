@@ -24,6 +24,9 @@ jobs:
 
     - name: Copy .env
       run: cp .env.example .env
+
+    - name: Copy pinToLineMap.json
+      run: cp pinToLineMap.example.json pinToLineMap.json
       
     - name: Create Database
       run: |

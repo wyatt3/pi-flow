@@ -4,6 +4,9 @@
     "description": "Multi-relay controller with scheduling, sqlite persistence, and websockets.",
     "main": "src/server.js",
     "type": "module",
+    "engines": {
+        "node": ">=20.0.0 <21.0.0"
+    },
     "scripts": {
         "dev:api": "nodemon src/server.js",
         "dev:web": "vite --config client/vite.config.js",

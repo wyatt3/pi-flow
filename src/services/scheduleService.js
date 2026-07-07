@@ -132,7 +132,7 @@ export default class ScheduleService {
         websocketService.broadcastUpdate();
 
         const timeout = schedule.duration_min * 60 * 1000;
-        setTimeout(() => ScheduleService.endSchedule(schedule), timeout);
+        setTimeout(() => ScheduleService.endSchedule(schedule, zone), timeout);
     }
 
     static recoverRunningSchedules() {
@@ -170,7 +170,7 @@ export default class ScheduleService {
                 db.prepare("UPDATE schedules SET status = 'idle' WHERE id = ?").run(schedule.id);
                 console.log(`Recovery: Schedule ${schedule.id} has expired, turned zone ${zone.name} OFF`);
             } else {
-                setTimeout(() => ScheduleService.endSchedule(schedule), remainingMinutes * 60 * 1000);
+                setTimeout(() => ScheduleService.endSchedule(schedule, zone), remainingMinutes * 60 * 1000);
                 console.log(`Recovery: Schedule ${schedule.id} still running, ${remainingMinutes.toFixed(1)} minutes remaining`);
             }
         });
@@ -178,7 +178,7 @@ export default class ScheduleService {
         websocketService.broadcastUpdate();
     }
 
-    static endSchedule(schedule) {
+    static endSchedule(schedule, zone) {
         const scheduleExists = db.prepare(
             `SELECT * FROM schedules WHERE id = ?`
         ).get(schedule.id);

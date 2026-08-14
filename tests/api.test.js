@@ -11,6 +11,7 @@ const mockScheduleController = {
   create: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+  cancel: jest.fn(),
 };
 
 const mockRouter = {
@@ -67,6 +68,10 @@ describe('API Routes', () => {
 
     it('should register POST /schedules/:id/ route', () => {
       expect(mockRouter.post).toHaveBeenCalledWith('/schedules/:id/', mockScheduleController.update);
+    });
+
+    it('should register POST /schedules/:id/cancel/ route', () => {
+      expect(mockRouter.post).toHaveBeenCalledWith('/schedules/:id/cancel/', mockScheduleController.cancel);
     });
 
     it('should register DELETE /schedules/:id/ route', () => {

@@ -6,6 +6,7 @@ const mockScheduleService = {
     createSchedule: jest.fn(),
     updateSchedule: jest.fn(),
     deleteSchedule: jest.fn(),
+    cancelSchedule: jest.fn(),
 };
 
 jest.unstable_mockModule('../src/config/db.js', () => ({
@@ -669,6 +670,111 @@ describe('ScheduleController', () => {
             ScheduleController.delete(mockReq, mockRes);
 
             expect(mockScheduleService.deleteSchedule).toHaveBeenCalledWith(
+                expect.objectContaining({ one_time: true })
+            );
+        });
+    });
+
+    describe('cancel', () => {
+        it('should cancel a running schedule', () => {
+            mockReq.params = { id: '1' };
+
+            const mockScheduleData = {
+                id: 1,
+                zone_id: 1,
+                start_time: '08:00',
+                duration_min: 30,
+                one_time: false,
+                skip_next: false,
+                status: 'running',
+            };
+
+            mockDb.mockGet.mockReturnValue(mockScheduleData);
+
+            ScheduleController.cancel(mockReq, mockRes);
+
+            expect(mockDb.prepare).toHaveBeenCalledWith('SELECT * FROM schedules WHERE id = ?');
+            expect(mockDb.mockGet).toHaveBeenCalledWith('1');
+            expect(mockScheduleService.cancelSchedule).toHaveBeenCalledWith(expect.any(Schedule));
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.json).toHaveBeenCalledWith(expect.any(Schedule));
+        });
+
+        it('should return 404 if schedule not found', () => {
+            mockReq.params = { id: '999' };
+            mockDb.mockGet.mockReturnValue(null);
+
+            ScheduleController.cancel(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(mockRes.json).toHaveBeenCalledWith({ error: 'Schedule not found' });
+            expect(mockScheduleService.cancelSchedule).not.toHaveBeenCalled();
+        });
+
+        it('should return 400 if schedule is not running', () => {
+            mockReq.params = { id: '1' };
+
+            const mockScheduleData = {
+                id: 1,
+                zone_id: 1,
+                start_time: '08:00',
+                duration_min: 30,
+                one_time: false,
+                skip_next: false,
+                status: 'scheduled',
+            };
+
+            mockDb.mockGet.mockReturnValue(mockScheduleData);
+
+            ScheduleController.cancel(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
+            expect(mockRes.json).toHaveBeenCalledWith({ error: 'Schedule is not running' });
+            expect(mockScheduleService.cancelSchedule).not.toHaveBeenCalled();
+        });
+
+        it('should handle service errors', () => {
+            mockReq.params = { id: '1' };
+
+            const mockScheduleData = {
+                id: 1,
+                zone_id: 1,
+                start_time: '08:00',
+                duration_min: 30,
+                one_time: false,
+                skip_next: false,
+                status: 'running',
+            };
+
+            mockDb.mockGet.mockReturnValue(mockScheduleData);
+            mockScheduleService.cancelSchedule.mockImplementation(() => {
+                throw new Error('Cancel failed');
+            });
+
+            ScheduleController.cancel(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
+            expect(mockRes.json).toHaveBeenCalledWith('Cancel failed');
+        });
+
+        it('should cancel one-time schedule', () => {
+            mockReq.params = { id: '1' };
+
+            const mockScheduleData = {
+                id: 1,
+                zone_id: 1,
+                start_time: '08:00',
+                duration_min: 30,
+                one_time: true,
+                skip_next: false,
+                status: 'running',
+            };
+
+            mockDb.mockGet.mockReturnValue(mockScheduleData);
+
+            ScheduleController.cancel(mockReq, mockRes);
+
+            expect(mockScheduleService.cancelSchedule).toHaveBeenCalledWith(
                 expect.objectContaining({ one_time: true })
             );
         });

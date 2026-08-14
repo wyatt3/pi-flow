@@ -49,4 +49,22 @@ export default class ScheduleController {
             return res.status(400).json(err.message);
         }
     }
+
+    static cancel(req, res) {
+        const { id } = req.params;
+        const result = db.prepare('SELECT * FROM schedules WHERE id = ?').get(id);
+        if (!result) {
+            return res.status(404).json({ error: 'Schedule not found' });
+        }
+        const schedule = new Schedule(result);
+        if (schedule.status !== 'running') {
+            return res.status(400).json({ error: 'Schedule is not running' });
+        }
+        try {
+            ScheduleService.cancelSchedule(schedule);
+            return res.status(200).json(schedule);
+        } catch (err) {
+            return res.status(400).json(err.message);
+        }
+    }
 }

@@ -25,6 +25,15 @@
       </button>
 
       <button
+        v-if="runningSchedules.length > 0"
+        @click="cancelRunning"
+        class="btn-pf btn-pf-danger btn-pf-sm"
+      >
+        <i class="bi bi-x-circle"></i>
+        Cancel
+      </button>
+
+      <button
         @click="toggleActive"
         :disabled="runningSchedules.length > 0"
         class="status-toggle"
@@ -61,6 +70,16 @@ export default {
         this.zone.active = this.zone.active == 1 ? 0 : 1;
         this.$toast.error(err.response.data);
       });
+    },
+    cancelRunning() {
+      axios
+        .post(`/api/schedules/${this.runningSchedules[0].id}/cancel`)
+        .then(() => {
+          this.$toast.success("Schedule cancelled");
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.error || err.response.data);
+        });
     },
     deleteZone() {
       if (confirm("Are you sure you want to delete this zone?")) {

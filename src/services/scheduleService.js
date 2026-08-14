@@ -186,14 +186,21 @@ export default class ScheduleService {
             `SELECT * FROM zones WHERE id = ?`
         ).get(schedule.zone_id);
 
+        if (scheduleExists && scheduleExists.status !== 'running') {
+            console.log(`Schedule: ${schedule.id} was cancelled, skipping completion`);
+            return;
+        }
+
         if (!zoneExists) {
             console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
+            ZoneService.save(zone, 1);
             ScheduleService.deleteSchedule(schedule);
             return;
         }
 
         if (!scheduleExists) {
-            console.log(`Schedule: ${schedule.id} is invalid`);
+            console.log(`Schedule: ${schedule.id} is invalid, turning zone OFF`);
+            ZoneService.save(zone, 1);
             return;
         }
 
@@ -209,6 +216,29 @@ export default class ScheduleService {
             ScheduleService.deleteSchedule(schedule);
         }
         websocketService.broadcastUpdate();
+    }
+
+    static cancelSchedule(schedule) {
+        const zoneRow = db.prepare(
+            `SELECT * FROM zones WHERE id = ?`
+        ).get(schedule.zone_id);
+        if (zoneRow) {
+            const zone = new Zone(zoneRow);
+            ZoneService.save(zone, 1);
+            console.log(`Deactivated GPIO Pin: ${zone.gpio_pin}`);
+        }
+
+        if (schedule.one_time) {
+            console.log(`Schedule: ${schedule.id} is one-time, deleting`);
+            ScheduleService.deleteSchedule(schedule);
+        } else {
+            db.prepare(
+                `UPDATE schedules SET status = ? WHERE id = ?`
+            ).run('idle', schedule.id);
+            schedule.status = 'idle';
+        }
+        websocketService.broadcastUpdate();
+        return schedule;
     }
 
     static checkForScheduleOverlap(

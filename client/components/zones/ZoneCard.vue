@@ -24,17 +24,13 @@
         </span>
       </button>
 
-      <button
-        v-if="runningSchedules.length > 0"
-        @click="cancelRunning"
-        class="btn-pf btn-pf-danger btn-pf-sm"
-      >
+      <button v-if="runningSchedules.length > 0" @click="cancelRunning" class="btn-pf btn-pf-danger btn-pf-sm">
         <i class="bi bi-x-circle"></i>
         Cancel
       </button>
 
       <button
-        @click="toggleActive"
+        @click="runningSchedules.length > 0 ? cancelRunning() : toggleActive()"
         :disabled="runningSchedules.length > 0"
         class="status-toggle"
         :class="zone.active == 0 ? 'is-on' : 'is-off'"

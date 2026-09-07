@@ -341,7 +341,7 @@ describe('ScheduleService', () => {
                 days: [1]
             };
 
-            const zone = { id: 1, name: 'Zone', gpio_pin: 17 };
+            const zone = { id: 1, name: 'Zone', gpio_pin: 17, status: 'running' };
             mockDb.mockGet.mockReturnValue(zone);
 
             ScheduleService.runSchedule(schedule);
@@ -363,7 +363,7 @@ describe('ScheduleService', () => {
                 days: [1]
             };
 
-            const zone = { id: 1, name: 'Zone', gpio_pin: 17 };
+            const zone = { id: 1, name: 'Zone', gpio_pin: 17, status: 'running' };
             mockDb.mockGet.mockReturnValue(zone);
 
             ScheduleService.runSchedule(schedule);
@@ -375,7 +375,7 @@ describe('ScheduleService', () => {
             );
         });
 
-        it('should delete schedule if zone is deleted during execution', () => {
+        it('should turn zone OFF if zone is deleted during execution', () => {
             const schedule = {
                 id: 1,
                 zone_id: 1,
@@ -387,18 +387,19 @@ describe('ScheduleService', () => {
             };
 
             const zone = { id: 1, name: 'Zone', gpio_pin: 17 };
-            mockDb.mockGet.mockReturnValueOnce(zone).mockReturnValueOnce({ id: 1 }).mockReturnValueOnce(null);
+            mockDb.mockGet.mockReturnValueOnce(zone).mockReturnValueOnce({ id: 1, status: 'running' }).mockReturnValueOnce(null);
 
             ScheduleService.runSchedule(schedule);
 
             jest.advanceTimersByTime(60 * 1000);
 
+            expect(mockZoneService.save).toHaveBeenCalledWith(expect.any(Zone), 1);
             expect(mockDb.prepare).toHaveBeenCalledWith(
                 expect.stringContaining('DELETE FROM schedules')
             );
         });
 
-        it('should delete schedule if schedule is deleted during execution', () => {
+        it('should turn zone OFF if schedule is deleted during execution', () => {
             const schedule = {
                 id: 1,
                 zone_id: 1,
@@ -416,9 +417,71 @@ describe('ScheduleService', () => {
 
             jest.advanceTimersByTime(60 * 1000);
 
+            expect(mockZoneService.save).toHaveBeenCalledWith(expect.any(Zone), 1);
+            expect(mockDb.prepare).not.toHaveBeenCalledWith(
+                expect.stringContaining('DELETE FROM schedules')
+            );
+        });
+
+        it('should skip completion if schedule was cancelled during execution', () => {
+            const schedule = {
+                id: 1,
+                zone_id: 1,
+                start_time: '08:00',
+                duration_min: 1,
+                one_time: false,
+                skip_next: false,
+                days: [1]
+            };
+
+            const zone = { id: 1, name: 'Zone', gpio_pin: 17 };
+            mockDb.mockGet.mockReturnValueOnce(zone).mockReturnValueOnce({ id: 1, status: 'idle' });
+
+            ScheduleService.runSchedule(schedule);
+
+            jest.advanceTimersByTime(60 * 1000);
+
+            expect(mockZoneService.save).toHaveBeenCalledTimes(1);
+            expect(mockDb.mockRun).not.toHaveBeenCalledWith('idle', 1);
+        });
+    });
+
+    describe('cancelSchedule', () => {
+        it('should deactivate zone and set status to idle for recurring schedule', () => {
+            const schedule = { id: 1, zone_id: 1, one_time: false };
+            mockDb.mockGet.mockReturnValue({ id: 1, name: 'Zone', gpio_pin: 17 });
+
+            ScheduleService.cancelSchedule(schedule);
+
+            expect(mockZoneService.save).toHaveBeenCalledWith(expect.any(Zone), 1);
+            expect(mockDb.mockRun).toHaveBeenCalledWith('idle', 1);
+            expect(schedule.status).toBe('idle');
+            expect(mockWebsocketService.broadcastUpdate).toHaveBeenCalled();
+        });
+
+        it('should delete one-time schedule on cancel', () => {
+            const schedule = { id: 1, zone_id: 1, one_time: true };
+            mockDb.mockGet.mockReturnValue({ id: 1, name: 'Zone', gpio_pin: 17 });
+
+            ScheduleService.cancelSchedule(schedule);
+
             expect(mockDb.prepare).toHaveBeenCalledWith(
                 expect.stringContaining('DELETE FROM schedules')
             );
+            expect(mockDb.prepare).toHaveBeenCalledWith(
+                expect.stringContaining('DELETE FROM schedule_days')
+            );
+            expect(mockDb.mockRun).not.toHaveBeenCalledWith('idle', 1);
+        });
+
+        it('should handle missing zone gracefully', () => {
+            const schedule = { id: 1, zone_id: 999, one_time: false };
+            mockDb.mockGet.mockReturnValue(null);
+
+            ScheduleService.cancelSchedule(schedule);
+
+            expect(mockZoneService.save).not.toHaveBeenCalled();
+            expect(mockDb.mockRun).toHaveBeenCalledWith('idle', 1);
         });
     });
 

@@ -132,33 +132,113 @@ export default class ScheduleService {
         websocketService.broadcastUpdate();
 
         const timeout = schedule.duration_min * 60 * 1000;
-        setTimeout(() => {
-            const scheduleExists = db.prepare(
-                `SELECT * FROM schedules WHERE id = ?`
-            ).get(schedule.id);
-            const zoneExists = db.prepare(
-                `SELECT * FROM zones WHERE id = ?`
-            ).get(schedule.zone_id);
+        setTimeout(() => ScheduleService.endSchedule(schedule, zone), timeout);
+    }
 
-            if (!zoneExists || !scheduleExists) {
-                console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
+    static recoverRunningSchedules() {
+        const timezone = process.env.TIMEZONE;
+        const now = moment().tz(timezone);
+        const runningSchedules = db.prepare(
+            "SELECT * FROM schedules WHERE status = 'running'"
+        ).all();
+
+        runningSchedules.forEach((row) => {
+            const schedule = new Schedule(row);
+            const zoneRow = db.prepare('SELECT * FROM zones WHERE id = ?').get(schedule.zone_id);
+
+            if (!zoneRow) {
+                console.log(`Recovery: Schedule ${schedule.id} has an invalid zone_id, deleting`);
                 ScheduleService.deleteSchedule(schedule);
                 return;
             }
 
-            console.log(`[${moment().tz(process.env.TIMEZONE).format('YYYY-MM-DD HH:mm')}] Schedule: ${schedule.id} complete`);
+            const zone = new Zone(zoneRow);
+
+            const [hours, minutes] = schedule.start_time.split(':').map(Number);
+            let startTime = moment().tz(timezone).hours(hours).minutes(minutes).seconds(0).milliseconds(0);
+
+            if (startTime.isAfter(now)) {
+                startTime.subtract(1, 'day');
+            }
+
+            const elapsedMs = now.diff(startTime);
+            const elapsedMinutes = elapsedMs / (60 * 1000);
+            const remainingMinutes = schedule.duration_min - elapsedMinutes;
+
+            if (remainingMinutes <= 0) {
+                ZoneService.save(zone, 1);
+                db.prepare("UPDATE schedules SET status = 'idle' WHERE id = ?").run(schedule.id);
+                console.log(`Recovery: Schedule ${schedule.id} has expired, turned zone ${zone.name} OFF`);
+            } else {
+                setTimeout(() => ScheduleService.endSchedule(schedule, zone), remainingMinutes * 60 * 1000);
+                console.log(`Recovery: Schedule ${schedule.id} still running, ${remainingMinutes.toFixed(1)} minutes remaining`);
+            }
+        });
+
+        websocketService.broadcastUpdate();
+    }
+
+    static endSchedule(schedule, zone) {
+        const scheduleExists = db.prepare(
+            `SELECT * FROM schedules WHERE id = ?`
+        ).get(schedule.id);
+        const zoneExists = db.prepare(
+            `SELECT * FROM zones WHERE id = ?`
+        ).get(schedule.zone_id);
+
+        if (scheduleExists && scheduleExists.status !== 'running') {
+            console.log(`Schedule: ${schedule.id} was cancelled, skipping completion`);
+            return;
+        }
+
+        if (!zoneExists) {
+            console.log(`Schedule: ${schedule.id} has an invalid zone_id, deleting`);
+            ZoneService.save(zone, 1);
+            ScheduleService.deleteSchedule(schedule);
+            return;
+        }
+
+        if (!scheduleExists) {
+            console.log(`Schedule: ${schedule.id} is invalid, turning zone OFF`);
+            ZoneService.save(zone, 1);
+            return;
+        }
+
+        console.log(`[${moment().tz(process.env.TIMEZONE).format('YYYY-MM-DD HH:mm')}] Schedule: ${schedule.id} complete`);
+        ZoneService.save(zone, 1);
+        console.log(`Deactivated GPIO Pin: ${zone.gpio_pin}`);
+        db.prepare(
+            `UPDATE schedules SET status = ? WHERE id = ?`
+        ).run('idle', schedule.id);
+
+        if (schedule.one_time) {
+            console.log(`Schedule: ${schedule.id} is one-time, deleting`);
+            ScheduleService.deleteSchedule(schedule);
+        }
+        websocketService.broadcastUpdate();
+    }
+
+    static cancelSchedule(schedule) {
+        const zoneRow = db.prepare(
+            `SELECT * FROM zones WHERE id = ?`
+        ).get(schedule.zone_id);
+        if (zoneRow) {
+            const zone = new Zone(zoneRow);
             ZoneService.save(zone, 1);
             console.log(`Deactivated GPIO Pin: ${zone.gpio_pin}`);
+        }
+
+        if (schedule.one_time) {
+            console.log(`Schedule: ${schedule.id} is one-time, deleting`);
+            ScheduleService.deleteSchedule(schedule);
+        } else {
             db.prepare(
                 `UPDATE schedules SET status = ? WHERE id = ?`
             ).run('idle', schedule.id);
-
-            if (schedule.one_time) {
-                console.log(`Schedule: ${schedule.id} is one-time, deleting`);
-                ScheduleService.deleteSchedule(schedule);
-            }
-            websocketService.broadcastUpdate();
-        }, timeout);
+            schedule.status = 'idle';
+        }
+        websocketService.broadcastUpdate();
+        return schedule;
     }
 
     static checkForScheduleOverlap(

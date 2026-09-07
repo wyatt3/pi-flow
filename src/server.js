@@ -28,6 +28,7 @@ websocketService.initSocket(server);
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server listening on http://0.0.0.0:${PORT}`);
+    ScheduleService.recoverRunningSchedules();
 });
 
 process.on('SIGINT', () => {

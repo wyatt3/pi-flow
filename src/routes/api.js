@@ -11,6 +11,7 @@ router.delete('/zones/:id/', ZoneController.delete);
 
 router.post('/schedules/', ScheduleController.create);
 router.post('/schedules/:id/', ScheduleController.update);
+router.post('/schedules/:id/cancel/', ScheduleController.cancel);
 router.delete('/schedules/:id/', ScheduleController.delete);
 
 export default router;

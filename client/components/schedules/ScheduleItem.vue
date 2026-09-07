@@ -54,17 +54,27 @@
 
     <div class="schedule-actions">
       <button
-        @click="toggleSkipNext"
-        class="btn-pf btn-pf-sm"
-        :class="schedule.skip_next ? 'btn-pf-danger' : 'btn-pf-warning'"
+        v-if="schedule.status === 'running'"
+        @click="cancelSchedule"
+        class="btn-pf btn-pf-danger btn-pf-sm"
       >
-        <i class="bi" :class="schedule.skip_next ? 'bi-skip-backward-fill' : 'bi-skip-forward-fill'"></i>
-        {{ schedule.skip_next ? "Unskip" : "Skip Next" }}
+        <i class="bi bi-x-circle"></i>
+        Cancel
       </button>
-      <button @click="editing = true" class="btn-pf btn-pf-outline btn-pf-sm">
-        <i class="bi bi-pencil"></i>
-        Edit
-      </button>
+      <template v-else>
+        <button
+          @click="toggleSkipNext"
+          class="btn-pf btn-pf-sm"
+          :class="schedule.skip_next ? 'btn-pf-danger' : 'btn-pf-warning'"
+        >
+          <i class="bi" :class="schedule.skip_next ? 'bi-skip-backward-fill' : 'bi-skip-forward-fill'"></i>
+          {{ schedule.skip_next ? "Unskip" : "Skip Next" }}
+        </button>
+        <button @click="editing = true" class="btn-pf btn-pf-outline btn-pf-sm">
+          <i class="bi bi-pencil"></i>
+          Edit
+        </button>
+      </template>
     </div>
   </div>
 </template>
@@ -142,6 +152,16 @@ export default {
             this.$toast.error(err.response.data);
           });
       }
+    },
+    cancelSchedule() {
+      axios
+        .post(`/api/schedules/${this.schedule.id}/cancel`)
+        .then(() => {
+          this.$toast.success("Schedule cancelled");
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.error || err.response.data);
+        });
     },
   },
 };
